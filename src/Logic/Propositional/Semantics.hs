@@ -7,8 +7,7 @@
 -- conclusion is.
 
 module Logic.Propositional.Semantics
-  ( conclusion
-  , Assumptions
+  ( Assumptions
   , checkProof
   , ppTheorem
   , ppTheoremAndProof
@@ -18,18 +17,6 @@ import Logic.Propositional.Syntax
 
 import Data.List
 import qualified Data.Set as S
-
-conclusion :: Proof -> Formula
-conclusion (Assumption f) = f
-conclusion (AndIntro f _ _) = f
-conclusion (AndElimL f _) = f
-conclusion (AndElimR f _) = f
-conclusion (ImpliesIntro f _) = f
-conclusion (ImpliesElim f _ _) = f
-conclusion (OrIntroL f _) = f
-conclusion (OrIntroR f _) = f
-conclusion (OrElim f _ _ _) = f
-conclusion (BottomElim f _) = f
 
 type Assumptions = S.Set Formula
 

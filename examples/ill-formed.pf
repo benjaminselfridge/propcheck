@@ -1,8 +1,8 @@
 Proof.
-1. a => b (Assumption)
-2. b => c (Assumption)
-3. a (Assumption)
-4. b (ImpliesElim 3 1)
-5. c (ImpliesElim 4 2)
-6. a => c (ImpliesIntro 5)
+1. a => b [Assumption]
+2. b => c [Assumption]
+3. a [Assumption]
+4. b [ImpliesElim 3 1]
+5. c [ImpliesElim 4 1 ]
+6. a => c [ImpliesIntro 5]
 QED

@@ -30,84 +30,61 @@ duplicates (x:xs) | x `elem` xs = Just x
 duplicateKeys :: Eq a => [(a, b)] -> Maybe a
 duplicateKeys = duplicates . map fst
 
-genProofFromLine :: Formula -> ProofRef  -> [ProofLine] -> Either String Proof
-genProofFromLine f AssumptionRef _ = Right $ Assumption f
-genProofFromLine f (AndIntroRef j k) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      case lookup k proofLines of
-        Nothing -> Left $ "reference to nonexistent line " ++ show k
-        Just (h, h_ref) ->
-          do g_proof <- genProofFromLine g g_ref proofLines
-             h_proof <- genProofFromLine h h_ref proofLines
-             return $ AndIntro f g_proof h_proof
-genProofFromLine f (AndElimLRef j) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      do g_proof <- genProofFromLine g g_ref proofLines
+genProofFromLine :: Int -> Formula -> ProofRef  -> [ProofLine] -> Either String Proof
+genProofFromLine lineNum f ref proofLines
+  | AssumptionRef <- ref = return $ Assumption f
+  | AndIntroRef j k <- ref,
+    Just (g, g_ref) <- lookup j proofLines,
+    Just (h, h_ref) <- lookup k proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
+         h_proof <- genProofFromLine k h h_ref proofLines
+         return $ AndIntro f g_proof h_proof
+  | AndElimLRef j <- ref,
+    Just (g, g_ref) <- lookup j proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
          return $ AndElimL f g_proof
-genProofFromLine f (AndElimRRef j) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      do g_proof <- genProofFromLine g g_ref proofLines
+  | AndElimRRef j <- ref,
+    Just (g, g_ref) <- lookup j proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
          return $ AndElimR f g_proof
-genProofFromLine f (ImpliesIntroRef j) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      do g_proof <- genProofFromLine g g_ref proofLines
+  | ImpliesIntroRef j <- ref,
+    Just (g, g_ref) <- lookup j proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
          return $ ImpliesIntro f g_proof
-genProofFromLine f (ImpliesElimRef j k) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      case lookup k proofLines of
-        Nothing -> Left $ "reference to nonexistent line " ++ show k
-        Just (h, h_ref) ->
-          do g_proof <- genProofFromLine g g_ref proofLines
-             h_proof <- genProofFromLine h h_ref proofLines
-             return $ ImpliesElim f g_proof h_proof
-genProofFromLine f (OrIntroLRef j) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      do g_proof <- genProofFromLine g g_ref proofLines
+  | ImpliesElimRef j k <- ref,
+    Just (g, g_ref) <- lookup j proofLines,
+    Just (h, h_ref) <- lookup k proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
+         h_proof <- genProofFromLine k h h_ref proofLines
+         return $ ImpliesElim f g_proof h_proof
+  | OrIntroLRef j <- ref,
+    Just (g, g_ref) <- lookup j proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
          return $ OrIntroL f g_proof
-genProofFromLine f (OrIntroRRef j) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      do g_proof <- genProofFromLine g g_ref proofLines
+  | OrIntroRRef j <- ref,
+    Just (g, g_ref) <- lookup j proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
          return $ OrIntroR f g_proof
-genProofFromLine f (OrElimRef j k l) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      case lookup k proofLines of
-        Nothing -> Left $ "reference to nonexistent line " ++ show k
-        Just (h, h_ref) ->
-          case lookup l proofLines of
-            Nothing -> Left $ "reference to nonexistent line " ++ show l
-            Just (i, i_ref) ->
-              do g_proof <- genProofFromLine g g_ref proofLines
-                 h_proof <- genProofFromLine h h_ref proofLines
-                 i_proof <- genProofFromLine i i_ref proofLines
-                 return $ OrElim f g_proof h_proof i_proof
-genProofFromLine f (BottomElimRef j) proofLines =
-  case lookup j proofLines of
-    Nothing -> Left $ "reference to nonexistent line " ++ show j
-    Just (g, g_ref) ->
-      do g_proof <- genProofFromLine g g_ref proofLines
+  | OrElimRef j k l <- ref,
+    Just (g, g_ref) <- lookup j proofLines,
+    Just (h, h_ref) <- lookup k proofLines,
+    Just (i, i_ref) <- lookup l proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
+         h_proof <- genProofFromLine k h h_ref proofLines
+         i_proof <- genProofFromLine l i i_ref proofLines
+         return $ OrElim f g_proof h_proof i_proof
+  | BottomElimRef j <- ref,
+    Just (g, g_ref) <- lookup j proofLines =
+      do g_proof <- genProofFromLine j g g_ref proofLines
          return $ BottomElim f g_proof
+  | otherwise = Left ("Line " ++ show lineNum ++
+                      ": reference to non-existent line ")
 
 genProof :: [ProofLine] -> Either String Proof
 genProof [] = Left "empty proof"
 genProof proofLines =
   case duplicateKeys proofLines of
-    Just i  -> Left $ "duplicate keys: " ++ show i
+    Just dup  -> Left $ "duplicate keys: " ++ show dup
     Nothing ->
-      genProofFromLine f f_ref proofLines
-      where (f, f_ref) = (snd . last) proofLines
+      genProofFromLine i f f_ref proofLines
+      where (i, (f, f_ref)) = last proofLines

@@ -6,7 +6,7 @@ version:             0.0.1
 -- license:             BSD3
 -- license-file:        LICENSE
 author:              Ben Selfridge
-maintainer:          benselfridge@gmail.com
+maintainer:          benselfridge, gmail
 -- copyright:           2017 Author name here
 category:            Logic
 build-type:          Simple
