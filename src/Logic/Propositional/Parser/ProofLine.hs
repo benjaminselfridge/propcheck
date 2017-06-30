@@ -31,8 +31,7 @@ duplicateKeys :: Eq a => [(a, b)] -> Maybe a
 duplicateKeys = duplicates . map fst
 
 genProofFromLine :: Formula -> ProofRef  -> [ProofLine] -> Either String Proof
-genProofFromLine f AssumptionRef _
-  = Right $ Assumption f
+genProofFromLine f AssumptionRef _ = Right $ Assumption f
 genProofFromLine f (AndIntroRef j k) proofLines =
   case lookup j proofLines of
     Nothing -> Left $ "reference to nonexistent line " ++ show j
