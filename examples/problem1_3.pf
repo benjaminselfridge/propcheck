@@ -1,0 +1,12 @@
+-- 1.3   Give a proof of (a => (b => c)) => ((a & b) => c).
+
+Proof.
+1. (a => (b => c))                   [Assumption]
+2. a & b                             [Assumption]
+3. a                                 [AndElimL 2]
+4. b                                 [AndElimR 2]
+5. b => c                            [ImpliesElim 3 1]
+6. c                                 [ImpliesElim 4 5]
+7. (a & b) => c                      [ImpliesIntro 6]
+8. (a => (b => c)) => ((a & b) => c) [ImpliesIntro 7]
+QED

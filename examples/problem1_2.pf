@@ -1,0 +1,13 @@
+Proof.
+1. (a | b) => c [Assumption]
+2. a [Assumption]
+3. a | b [OrIntroL 2]
+4. c [ImpliesElim 3 1]
+5. a => c [ImpliesIntro 4]
+6. b [Assumption]
+7. a | b [OrIntroR 6]
+8. c [ImpliesElim 7 1]
+9. b => c [ImpliesIntro 8]
+10. (a => c) & (b => c) [AndIntro 5 9]
+11. ((a | b) => c) => ((a => c) & (b => c)) [ImpliesIntro 10]
+QED

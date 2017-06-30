@@ -1,0 +1,26 @@
+-- (a & (b & c)) <=> ((a & b) & c)
+Proof.
+
+-- =>
+1.  a & (b & c)                     [Assumption]
+2.  a                               [AndElimL 1]
+3.  b & c                           [AndElimR 1]
+4.  b                               [AndElimL 3]
+5.  c                               [AndElimR 3]
+6.  a & b                           [AndIntro 2 4]
+7.  (a & b) & c                     [AndIntro 6 5]
+8.  (a & (b & c)) => ((a & b) & c)  [ImpliesIntro 7]
+
+-- <=
+9.  (a & b) & c                     [Assumption]
+10. a & b                           [AndElimL 9]
+11. c                               [AndElimR 9]
+12. a                               [AndElimL 10]
+13. b                               [AndElimR 10]
+14. b & c                           [AndIntro 13 11]
+15. a & (b & c)                     [AndIntro 12 14]
+16. ((a & b) & c) => (a & (b & c))  [ImpliesIntro 15]
+
+-- <=>
+17. (a & (b & c)) <=> ((a & b) & c) [AndIntro 8 16]
+QED

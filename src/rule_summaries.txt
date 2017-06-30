@@ -1,0 +1,92 @@
+-- Rule of assumption --
+
+Format: <formula> [Assumption]
+
+The rule of assumption allows the introduction of any hypothesis, with
+the implicit cost that unless it is discharged at a later point in the
+proof, it will appear as a top-level hypothesis. This rule requires no
+references to any other lines in a proof.
+
+-- Rule of and introduction --
+
+Format: f & g [AndIntro i j]
+
+        (where line i has conclusion f,
+               line j has conclusion g)
+
+The rule of and introduction allows the introduction of a new formula,
+f & g, given two references, i and j, to lines in the proof concluding
+f and g respectively.
+
+-- Rule of and elimination --
+
+Formats: f [AndElimL i]
+         g [AndElimR i]
+
+         (where line i has conclusion f & g for some formula g)
+
+The rules of and elimination allow us to conclude formulas f and g,
+given a reference i to a line in the proof concluding f & g.
+
+-- Rule of implies introduction --
+
+Format: f => g [ImpliesIntro i]
+
+        (where line i has conclusion g)
+
+The rule of implies introduction allows us conclude f => g, given a
+reference i to a line in the proof concluding g. This rule has the
+benefit of discharging the assumption f, wherever it may occur in the
+proof tree of the formula f => g. Note that if the assumption f is
+used elsewhere in the proof, outside the scope of this formula, then
+it may still appear as a top-level assumption.
+
+-- Rule of implies elimination --
+
+Format: f [ImpliesElim i j]
+
+        (where line i has conclusion g for some formula g,
+               line j has conclusion g => f)
+
+The rule of implies elimination (or modus ponens) allows us to
+conclude a formula f, given two references, i and j, to lines in the
+proof concluding g and g => f, respectively, where g can be any
+formula.
+
+-- Rule of or introduction --
+
+Formats: f | g [OrIntroL i]
+         f | g [OrIntroR j]
+
+         (where line i has conclusion f,
+                line j has conclusion g)
+
+The rule of or introduction allows the introduction of a new formula,
+f | g, given a reference i (j) to a line in the proof concluding f
+(g).
+
+-- Rule of or elimination --
+
+Format: f [OrElim i j k]
+
+        (where line i has conclusion g | h for some formulas g and h,
+               line j has conclusion f,
+               line k has conclusion f)
+
+The rule of or elimination allows us to conclude a formula f, given
+three references, i, j, and k, to lines in the proof concluding g | h,
+f, and f, respectively. This rule has the benefit of discharging the
+assumption g in the proof of line j, along with the assumption h in
+the proof of line k. Note that if these assumptions are used elsewhere
+in the proof, outside the scope of those respective formulas, then
+they may still appear as top-level assumptions.
+
+-- Rule of bottom elimination --
+
+Formats: f [BottomElim i]
+
+         (where line i has conclusion _|_)
+
+THe rule of bottom elimination (or absurdity) allows us to conclude
+any formula f, given a reference to a proof i concluding _|_
+(bottom).

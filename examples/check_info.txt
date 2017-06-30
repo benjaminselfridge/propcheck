@@ -1,0 +1,20 @@
+Propcheck (version 0.0.1)
+  -- copyright 2017 by Ben Selfridge
+
+PropCheck is a program that automatically checks a proof you write in
+intuituionistic propositional logic. The program consists of a single
+executable called "check". To use it, write a proof in a file called
+myProof.pf (or whatever extension you like", and run the following
+command:
+
+  > check myProof.pf
+
+The output will be a single line of the form
+
+  [<assumptions>] |- <conclusion>
+
+or some kind of error message. <conclusion> is (by default) the
+conclusion of the final step in your proof, and <assumptions> are the
+list of assumptions your proof did not discharge.
+
+Run "check --help" for a list of other options.

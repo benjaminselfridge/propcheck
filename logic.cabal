@@ -1,0 +1,69 @@
+name:                propcheck
+version:             0.0.1
+-- synopsis:
+-- description:
+-- homepage:            https://github.com/githubuser/propcheck#readme
+-- license:             BSD3
+-- license-file:        LICENSE
+author:              Ben Selfridge
+maintainer:          benselfridge@gmail.com
+-- copyright:           2017 Author name here
+category:            Logic
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+library
+  build-depends:
+    base >= 4.7 && < 5,
+    containers,
+    parsec
+  hs-source-dirs: src
+  exposed-modules:
+    Logic.Propositional
+    Logic.Propositional.Prover
+    Logic.Propositional.Parser
+  other-modules:
+    Logic.Propositional.Syntax
+    Logic.Propositional.Semantics
+    Logic.Propositional.Parser.ProofLine
+  default-language: Haskell2010
+
+-- test-suite propcheck
+--   type: exitcode-stdio-1.0
+--   default-language: Haskell2010
+--   ghc-options: -Wall
+--   main-is: Main.hs
+--   other-modules: ElfX64Linux
+--   hs-source-dirs: tests
+--   build-depends:
+--     base,
+--     bytestring,
+--     containers,
+--     elf-edit,
+--     exceptions,
+--     filemanip,
+--     filepath,
+--     lens,
+--     macaw,
+--     parameterized-utils,
+--     reopt,
+--     temporary,
+--     tasty,
+--     tasty-hunit
+
+executable check
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  other-modules:
+    Logic.Propositional
+    Logic.Propositional.Syntax
+    Logic.Propositional.Semantics
+    Logic.Propositional.Parser
+    Logic.Propositional.Parser.ProofLine
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5,
+                       cmdargs,
+                       containers,
+                       lens,
+                       parsec
