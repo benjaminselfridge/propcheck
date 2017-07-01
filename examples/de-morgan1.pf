@@ -1,0 +1,52 @@
+-- proof of !(a & b) <=> (!a | !b)
+
+Proof.
+
+-- =>
+1. !(a & b) [Assumption]
+
+-- case split on a
+2. a | !a [ExcludedMiddle]
+   -- Case 1: a, show !b and thus !a | !b
+   3. a [Assumption]
+   -- case split on b
+   4. b | !b [ExcludedMiddle]
+      -- Case 1: b
+      5. b [Assumption]
+      6. a & b [AndIntro 3 5]
+      7. _|_ [ImpliesElim 6 1]
+      8. !b [ImpliesIntro 7]
+      9. !a | !b [OrIntroR 8]
+      -- Case 2: !b
+      10. !b [Assumption]
+      11. !a | !b [OrIntroR 10]
+   12. !a | !b [OrElim 4 9 11]
+
+   -- Case 2: !a
+   13. !a [Assumption]
+   14. !a | !b [OrIntroL 13]
+15. !a | !b [OrElim 2 12 14]
+16. !(a & b) => (!a | !b) [ImpliesIntro 15]
+
+-- <=
+17. !a | !b [Assumption]
+18. a & b [Assumption]
+19. a [AndElimL 18]
+20. b [AndElimR 18]
+
+-- case split on 17
+   -- Case 1: !a
+   21. !a [Assumption]
+   22. _|_ [ImpliesElim 19 21]
+   23. !(a & b) [ImpliesIntro 22]
+
+   -- Case 2: !b
+   24. !b [Assumption]
+   25. _|_ [ImpliesElim 20 24]
+   26. !(a & b) [ImpliesIntro 25]
+27. !(a & b) [OrElim 17 23 26]
+28. (!a | !b) => !(a & b) [ImpliesIntro 27]
+
+-- Putting it all together.
+29. !(a & b) <=> (!a | !b) [AndIntro 16 28]
+QED
