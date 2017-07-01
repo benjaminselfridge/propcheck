@@ -4,11 +4,11 @@
 -- calculus. We introduce two major datatypes, Formula and Proof.
 
 module Logic.Propositional.Syntax
-  ( Formula(..),
-    Proof(..),
-    conclusion,
-    a, b, c,
-    (~&), (~|), (~>), bot, neg, iff
+  ( Formula(..)
+  , Proof(..)
+  , conclusion
+  , a, b, c
+  , (~&), (~|), (~>), bot, neg, iff
   ) where
 
 import qualified Data.Set as S
@@ -20,15 +20,28 @@ data Formula = Var String
              | Bottom
   deriving (Eq, Ord)
 
+showFormula :: Formula -> String
+showFormula (Var s) = s
+showFormula (And (Implies a b) (Implies c d))
+  | a == d && b == c = "(" ++ showFormula a ++ " <=> " ++ showFormula b ++ ")"
+showFormula (And a b) = "(" ++ showFormula a ++ " & " ++ showFormula b ++ ")"
+showFormula (Or a b) = "(" ++ showFormula a ++ " | " ++ showFormula b ++ ")"
+showFormula (Implies a Bottom) = "!" ++ showFormula a
+showFormula (Implies a b) = "(" ++ showFormula a ++ " => " ++ showFormula b ++ ")"
+showFormula Bottom = "_|_"
+
+showFormulaTop :: Formula -> String
+showFormulaTop (Var s) = s
+showFormulaTop (And (Implies a b) (Implies c d))
+  | a == d && b == c = showFormula a ++ " <=> " ++ showFormula b
+showFormulaTop (And a b) = showFormula a ++ " & " ++ showFormula b
+showFormulaTop (Or a b) = showFormula a ++ " | " ++ showFormula b
+showFormulaTop (Implies a Bottom) = "!" ++ showFormula a
+showFormulaTop (Implies a b) = showFormula a ++ " => " ++ showFormula b
+showFormulaTop Bottom = "_|_"
+
 instance Show Formula where
-  show (Var s) = s
-  show (And (Implies a b) (Implies c d))
-    | a == d && b == c = "(" ++ show a ++ " <=> " ++ show b ++ ")"
-  show (And a b) = "(" ++ show a ++ " & " ++ show b ++ ")"
-  show (Or a b) = "(" ++ show a ++ " | " ++ show b ++ ")"
-  show (Implies a Bottom) = "!" ++ show a
-  show (Implies a b) = "(" ++ show a ++ " => " ++ show b ++ ")"
-  show Bottom = "_|_"
+  show = showFormulaTop
 
 data Proof = Assumption Formula
            | AndIntro Formula Proof Proof
@@ -40,6 +53,7 @@ data Proof = Assumption Formula
            | OrIntroR Formula Proof
            | OrElim Formula Proof Proof Proof
            | BottomElim Formula Proof
+           | ExcludedMiddle Formula
 
 conclusion :: Proof -> Formula
 conclusion (Assumption f) = f
@@ -52,6 +66,7 @@ conclusion (OrIntroL f _) = f
 conclusion (OrIntroR f _) = f
 conclusion (OrElim f _ _ _) = f
 conclusion (BottomElim f _) = f
+conclusion (ExcludedMiddle f) = f
 
 showProof_ :: S.Set Formula -> String -> Proof -> String
 showProof_ pool pad (Assumption formula) =
@@ -89,6 +104,8 @@ showProof_ pool pad (OrElim formula p1 p2 p3)
 showProof_ pool pad (BottomElim formula p) =
   pad ++ show formula ++ " [BottomElim]\n" ++
   showProof_ pool (pad++"  ") p
+showProof_ pool pad (ExcludedMiddle formula) =
+  pad ++ show formula ++ " [ExcludedMiddle]"
 
 showProof :: Proof -> String
 showProof = showProof_ S.empty ""

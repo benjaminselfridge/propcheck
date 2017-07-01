@@ -1,5 +1,59 @@
--- (a | (b | c)) <=> ((a | b) | c)
+-- proof of (a | (b | c)) <=> ((a | b) | c)
 
 Proof.
 -- =>
-1. 
+1.  a | (b | c)                    [Assumption]
+
+-- Case split on 1
+  -- Case 1: a
+  2.  a                            [Assumption]
+  3.  a | b                        [OrIntroL 2]
+  4.  (a | b) | c                  [OrIntroL 3]
+
+  -- Case 2: b | c
+  5.  b | c                        [Assumption]
+
+  -- Case split on 5
+    -- Case 2.1: b
+    6.  b                          [Assumption]
+    7.  a | b                      [OrIntroR 6]
+    8.  (a | b) | c                [OrIntroL 7]
+
+    -- Case 2.2: c
+    9.  c                          [Assumption]
+    10. (a | b) | c                [OrIntroR 9]
+
+  11. (a | b) | c                  [OrElim 5 8 10]
+
+12. (a | b) | c                    [OrElim 1 4 11]
+13. (a | (b | c)) => ((a | b) | c) [ImpliesIntro 12]
+
+14. (a | b) | c                  [Assumption]
+
+-- Case split on 14
+  -- Case 1: a | b
+  15. a | b                        [Assumption]
+
+  -- Case split on 15
+    -- Case 1.1: a
+    16. a                          [Assumption]
+    17. a | (b | c)                [OrIntroL 16]
+
+    -- Case 1.2: b
+    18. b                          [Assumption]
+    19. b | c                      [OrIntroL 18]
+    20. a | (b | c)                [OrIntroR 19]
+
+  21. a | (b | c)                  [OrElim 15 17 20]
+
+  -- Case 2: c
+  22. c                            [Assumption]
+  23. b | c                        [OrIntroR 22]
+  24. a | (b | c)                  [OrIntroR 23]
+
+25. a | (b | c)                    [OrElim 14 21 24]
+26. ((a | b) | c) => (a | (b | c)) [ImpliesIntro 25]
+
+27. (a | (b | c)) <=> ((a | b) | c) [AndIntro 13 26]
+
+QED

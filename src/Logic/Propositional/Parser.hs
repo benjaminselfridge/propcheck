@@ -99,6 +99,7 @@ parseProofRef input = parse (spacebars >>
                       "Bad proof reference" input
 
 p_ref = try (p_ref0 "Assumption" AssumptionRef)
+        <|> try (p_ref0 "ExcludedMiddle" ExcludedMiddleRef)
         <|> try (p_ref1 "AndElimL" AndElimLRef)
         <|> try (p_ref1 "AndElimR" AndElimRRef)
         <|> try (p_ref1 "ImpliesIntro" ImpliesIntroRef)

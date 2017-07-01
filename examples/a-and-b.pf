@@ -1,0 +1,7 @@
+-- proof of (a & b) => a
+
+Proof.
+1. a & b [Assumption]
+2. a [AndElimL 1]
+3. (a & b) => a [ImpliesIntro 2]
+QED

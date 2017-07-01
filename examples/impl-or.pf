@@ -1,0 +1,24 @@
+-- a proof of (p => q) | (q => p)
+
+Proof.
+
+-- Case split on p => q
+1.  (p => q) | !(p => q)                    [ExcludedMiddle]
+
+-- Case 1. p => q
+2.  p => q                                  [Assumption]      --*
+3.  (p => q) | (q => p)                     [OrIntroL 2]
+
+-- Case 2. !(p => q), show q => p.
+4.  !(p => q)                               [Assumption]      --*
+5.  q                                       [Assumption]      --*
+6.  p => q                                  [ImpliesIntro 5]
+7.  _|_                                     [ImpliesElim 6 4]
+8.  p                                       [BottomElim 7]
+9.  q => p                                  [ImpliesIntro 8]
+10. (p => q) | (q => p)                     [OrIntroR 9]
+
+-- Now use OrElim to get rid of the remaining assumptions.
+11. (p => q) | (q => p)                     [OrElim 1 3 10]
+
+QED

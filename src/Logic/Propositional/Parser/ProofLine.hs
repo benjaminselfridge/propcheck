@@ -3,10 +3,15 @@
 module Logic.Propositional.Parser.ProofLine
   (ProofRef(..),
    ProofLine,
+   SimpleGraph,
+   findCycle,
    genProof)
   where
 
 import Logic.Propositional
+
+import Data.Maybe
+import qualified Data.Set as S
 
 data ProofRef = AssumptionRef
               | AndIntroRef Int Int
@@ -18,6 +23,7 @@ data ProofRef = AssumptionRef
               | OrIntroRRef Int
               | OrElimRef Int Int Int
               | BottomElimRef Int
+              | ExcludedMiddleRef
   deriving (Show)
 
 type ProofLine = (Int, (Formula, ProofRef))
@@ -30,6 +36,21 @@ duplicates (x:xs) | x `elem` xs = Just x
 duplicateKeys :: Eq a => [(a, b)] -> Maybe a
 duplicateKeys = duplicates . map fst
 
+type SimpleGraph = [(Int, [Int])]
+
+findCycle :: [Int] -> Int -> SimpleGraph -> Maybe [Int]
+findCycle _ _ [] = Nothing
+findCycle visitedNodes start graph
+  | Just children <- children,
+    any (`elem` children) visitedNodes =
+      Just visitedNodes
+  | Just children <- children,
+    (cyc:_) <- (catMaybes . map findCycleChild) children = Just cyc
+  | otherwise = Nothing
+  where children = lookup start graph
+        findCycleChild child = findCycle (child:visitedNodes) child graph
+
+-- We assume there are no cycles.
 genProofFromLine :: Int -> Formula -> ProofRef  -> [ProofLine] -> Either String Proof
 genProofFromLine lineNum f ref proofLines
   | AssumptionRef <- ref = return $ Assumption f
@@ -77,6 +98,7 @@ genProofFromLine lineNum f ref proofLines
     Just (g, g_ref) <- lookup j proofLines =
       do g_proof <- genProofFromLine j g g_ref proofLines
          return $ BottomElim f g_proof
+  | ExcludedMiddleRef <- ref = return $ ExcludedMiddle f
   | otherwise = Left ("Line " ++ show lineNum ++
                       ": reference to non-existent line ")
 

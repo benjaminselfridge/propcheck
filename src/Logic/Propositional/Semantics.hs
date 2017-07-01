@@ -22,7 +22,7 @@ type Assumptions = S.Set Formula
 
 checkProof :: Proof -> Either String Assumptions
 checkProof proof
-  | Assumption f <- proof = Right $ S.singleton f
+  | Assumption f <- proof = return $ S.singleton f
   | AndIntro (And f g) p1 p2 <- proof,
     conclusion p1 == f,
     conclusion p2 == g =
@@ -67,6 +67,9 @@ checkProof proof
   | BottomElim f p <- proof,
     Bottom <- conclusion p =
       do checkProof p
+  | ExcludedMiddle (Or f (Implies g Bottom)) <- proof,
+    f == g =
+      return S.empty
   | otherwise = Left $ "Ill-formed proof:\n" ++ show proof
 
 ppTheorem :: Proof -> String

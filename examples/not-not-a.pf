@@ -1,0 +1,20 @@
+-- A proof of !!a => a, using classical logic.
+
+Proof.
+1. a | !a [ExcludedMiddle]
+2. !!a [Assumption] --*
+
+-- We are going to user OrElim on 1. First we need to assume the
+-- left-hand side and prove a.
+3. a [Assumption] --*
+
+-- Okay, that was pretty easy. Now let's assume the right-hand side
+-- and prove a.
+4. !a [Assumption] --*
+5. _|_ [ImpliesElim 4 2]
+6. a [BottomElim 5] -- By absurdity, we conclude a
+
+7. a [OrElim 1 3 6] -- discharges 3 and 4
+8. !!a => a [ImpliesIntro 7] -- discharges 2
+
+QED
