@@ -20,7 +20,9 @@ the basic Haskell command line tools, including ghc and
 cabal. Assuming you have those tools, you can install it by standing
 in the top-level directory and typing
 
-   $ cabal install
+```
+$ cabal install
+```
 
 This will install all dependencies, as well as the project, in your
 default installation directory (usually ~/.local/bin). If you add that
