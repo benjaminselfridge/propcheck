@@ -46,7 +46,7 @@ checkWithProofFlag = flagNone [ "proof", "p" ] upd help
         help = "Show the parsed proof along with the theorem."
 
 printRulesFlag :: Flag Args
-printRulesFlag = flagNone [ "rules" ] upd help
+printRulesFlag = flagNone [ "show-rules" ] upd help
   where upd = checkAction .~ PrintRules
         help = "Print the complete list of derivation rules \
                \that can be used in a proof. Use this flag \
