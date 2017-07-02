@@ -259,6 +259,21 @@ bottomElimSummary =
   \any formula f, given a reference to a proof i concluding _|_\n\
   \(bottom)."
 
+excludedMiddleSummary :: String
+excludedMiddleSummary =
+  "-- Rule of excluded middle --\
+  \\n\
+  \Formats: f | !f [ExcludedMiddle]\n\
+  \\n\
+  \The rule of excluded middle takes constructive logic and turns it into\n\
+  \classical logic, where every statement is either true or false. It\n\
+  \says that for any formula f, it is either true or it is false. This is\n\
+  \a very powerful law, because it always permits us to case split on the\n\
+  \truth or falsehood of any particular statement. This enables us to do\n\
+  \proofs by contradiction; without this law, we couldn't prove\n\
+  \DeMorgan's laws, Peirce's laws, and a number of other intuitively\n\
+  \clear formulas.\n"
+
 allRuleSummaries :: String
 allRuleSummaries =
   assumptionSummary   ++ "\n\n" ++
@@ -268,7 +283,8 @@ allRuleSummaries =
   impliesElimSummary  ++ "\n\n" ++
   orIntroSummary      ++ "\n\n" ++
   orElimSummary       ++ "\n\n" ++
-  bottomElimSummary   ++ "\n"
+  bottomElimSummary   ++ "\n\n" ++
+  excludedMiddleSummary
 
 printAllRuleSummaries :: IO ()
 printAllRuleSummaries = putStr allRuleSummaries

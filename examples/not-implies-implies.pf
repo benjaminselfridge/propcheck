@@ -1,0 +1,13 @@
+-- proof of !p => (p => q)
+-- this one is actually constructive.
+
+Proof.
+
+1. !p                           [Assumption]            --*
+2. p                            [Assumption]            --*
+3. _|_                          [ImpliesElim 2 1]
+4. q                            [BottomElim 3]
+5. p => q                       [ImpliesIntro 4]
+6. !p => (p => q)               [ImpliesIntro 5]
+
+QED

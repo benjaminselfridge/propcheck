@@ -1,0 +1,31 @@
+-- Peirce's law: ((p => q) => p) => p
+
+Proof.
+
+1. ((p => q) => p)                              [Assumption]        --*
+
+-- Proof by contradiction. Suppose !p.
+2. !p                                           [Assumption]        --*
+
+-- Then we can show p => q. First, suppose p.
+3. p                                            [Assumption]        --*
+4. _|_                                          [ImpliesElim 3 2]
+5. q                                            [BottomElim 4]
+6. p => q                                       [ImpliesIntro 5]
+
+-- This lets us conclude p.
+7. p                                            [ImpliesElim 6 1]
+
+-- But we assumed !p, which gives us a contradiction!
+8. _|_                                          [ImpliesElim 7 2]
+9. p                                            [BottomElim 8]
+
+-- Now certainly we can conclude p if we assume it:
+10. p                                           [Assumption]       --*
+
+-- Put it all together with excluded middle and or elimination:
+11. p | !p                                      [ExcludedMiddle]
+12. p                                           [OrElim 11 10 9]
+13. ((p => q) => p) => p                        [ImpliesIntro 12]
+
+QED

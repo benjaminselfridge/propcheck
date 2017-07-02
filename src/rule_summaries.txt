@@ -90,3 +90,16 @@ Formats: f [BottomElim i]
 THe rule of bottom elimination (or absurdity) allows us to conclude
 any formula f, given a reference to a proof i concluding _|_
 (bottom).
+
+-- Rule of excluded middle --
+
+Formats: f | !f [ExcludedMiddle]
+
+The rule of excluded middle takes constructive logic and turns it into
+classical logic, where every statement is either true or false. It
+says that for any formula f, it is either true or it is false. This is
+a very powerful law, because it always permits us to case split on the
+truth or falsehood of any particular statement. This enables us to do
+proofs by contradiction; without this law, we couldn't prove
+DeMorgan's laws, Peirce's laws, and a number of other intuitively
+clear formulas.

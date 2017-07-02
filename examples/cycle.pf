@@ -1,0 +1,9 @@
+-- proof with a cycle in it. Need to include a check for this.
+
+Proof.
+
+1. a => a [Assumption]
+2. a [Assumption]
+3. a [ImpliesElim 3 1]
+
+QED

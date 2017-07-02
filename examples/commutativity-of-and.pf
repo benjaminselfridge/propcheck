@@ -1,0 +1,12 @@
+-- prove (a & b) => (b & a)
+
+Proof.
+
+-- =>
+1. a & b                        [Assumption]
+2. a                            [AndElimL 1]
+3. b                            [AndElimR 1]
+4. b & a                        [AndIntro 3 2]
+5. (a & b) => (b & a)           [ImpliesIntro 4]
+
+QED
