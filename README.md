@@ -31,46 +31,56 @@ executable.
 
 Try running the check command:
 
-  $ check
-  Please specify a path.
-  For help on using check, run "check --help".
+```
+$ check
+Please specify a path.
+For help on using check, run "check --help".
+```
 
 Okay, sure:
 
-  $ check --help
-  check [OPTIONS] [FILE]
-    PropCheck propositional logic checker (check) 0.0.1, June 2017.
-    Copyright 2017 Ben Selfridge. All rights reserved.
+```
+$ check --help
+check [OPTIONS] [FILE]
+  PropCheck propositional logic checker (check) 0.0.1, June 2017.
+  Copyright 2017 Ben Selfridge. All rights reserved.
 
-    -p --proof    Show the parsed proof along with the theorem.
-       --rules    Print the complete list of derivation rules that can be used
-                  in a proof. Use this flag in conjunction with --sample to
-                  figure out the correct format for writing proof files.
-    -s --sample   Print a sample proof to stdout. To test this, redirect the
-                  file to a file with > sample.pf and run `check sample.pf`.
-    -? --help     Display help message
-    -V --version  Print version information
+  -p --proof    Show the parsed proof along with the theorem.
+     --rules    Print the complete list of derivation rules that can be used
+                in a proof. Use this flag in conjunction with --sample to
+                figure out the correct format for writing proof files.
+  -s --sample   Print a sample proof to stdout. To test this, redirect the
+                file to a file with > sample.pf and run `check sample.pf`.
+  -? --help     Display help message
+  -V --version  Print version information
+```
 
 Generate a simple proof with the -s command:
 
-  $ check -s > simple.pf
+```
+$ check -s > simple.pf
+```
 
 Take a look at this file to see an example of a proof, or just run check on it:
 
-  $ check simple.pf
-  Thm: [a => b, b => c] |- a => c
+```
+$ check simple.pf
+Thm: [a => b, b => c] |- a => c
+```
 
 To see the entire proof as parsed by check, use the -p option:
 
-  $ check -p simple.pf
-  Thm: [a => b, b => c] |- a => c
-  Proof:
-  a => c [ImpliesIntro]
-    c [ImpliesElim]
-      b [ImpliesElim]
-        a [Assumption]*
-        a => b [Assumption]
-      b => c [Assumption]
+```
+$ check -p simple.pf
+Thm: [a => b, b => c] |- a => c
+Proof:
+a => c [ImpliesIntro]
+  c [ImpliesElim]
+    b [ImpliesElim]
+      a [Assumption]*
+      a => b [Assumption]
+    b => c [Assumption]
+```
 
 This output says that the proof supplied demonstrates the formula a =>
 c is valid, given the top-level assumptions a => b and b => c.
