@@ -2,7 +2,8 @@
 
 This package provides several Haskell modules for interfacing with
 propositional logic. It also provides an executable called check,
-which automatically parses and checks a proof file in a format we specify.
+which automatically parses and checks a proof file in a format we
+specify.
 
 ## Introduction
 
@@ -10,7 +11,11 @@ propcheck is intended as an educational tool provided as an aide to
 those wanting to learn about proofs in propositional logic
 (constructive and classical). It is both a code library and a
 command-line tool. propcheck is a proof *checker* for propositional
-logic.
+logic proofs written in the Gentzen-style natural deduction. We
+adapted our proof rules from the book "Type Theory and Functional
+Programming" by Simon Thompson. The primitive connectives are &, |,
+=>, and _|_. There are two abbreviated connectives, !a (a => _|_) and
+a <=> b (a => b & b => a).
 
 ## Installation
 
@@ -24,7 +29,7 @@ in the top-level directory and typing
 $ cabal install
 ```
 
-This will install all dependencies, as well as the project, in your
+This should install all dependencies, as well as the project, in your
 default installation directory (usually ~/.local/bin). If you add that
 directory to your path, you should be able to run the "check"
 executable.
@@ -70,6 +75,9 @@ $ check simple.pf
 Thm: [a => b, b => c] |- a => c
 ```
 
+This output says that the proof supplied demonstrates the formula a =>
+c is valid, given the top-level assumptions a => b and b => c.
+
 To see the entire proof as parsed by check, use the -p option:
 
 ```
@@ -84,10 +92,6 @@ a => c [ImpliesIntro]
     b => c [Assumption]
 ```
 
-This output says that the proof supplied demonstrates the formula a =>
-c is valid, given the top-level assumptions a => b and b => c.
-
 To find out more about the proof format, take a look at the examples
 in the examples/ folder. You can also get a complete listing of the
 inference rules by running "check --rules".
-

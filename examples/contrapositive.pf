@@ -32,6 +32,6 @@ Proof.
 19. (!b => !a) => (a => b) [ImpliesIntro 18]
 
 -- Put them together
-20. (a => b) <=> (!b => !a) [AndIntro 8 19]
+--20. (a => b) <=> (!b => !a) [AndIntro 8 19]
 
 QED

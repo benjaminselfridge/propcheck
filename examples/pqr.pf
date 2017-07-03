@@ -1,0 +1,23 @@
+-- proof of ((p => r) | (q => r)) => ((p & q) => r)
+
+Proof.
+
+1. (p => r) | (q => r)                          [Assumption]            --*
+2. p & q                                        [Assumption]            --*
+3. p                                            [AndElimL 2]
+4. q                                            [AndElimR 2]
+
+-- Case split on 1.
+   -- Case 1: p => r
+   5. p => r                                    [Assumption]            --*
+   6. r                                         [ImpliesElim 3 5]
+
+   -- Case 2: q => r
+   7. q => r                                    [Assumption]            --*
+   8. r                                         [ImpliesElim 4 7]
+
+9. r                                            [OrElim 1 6 8]
+10. ((p & q) => r)                              [ImpliesIntro 9]
+11. ((p => r) | (q => r)) => ((p & q) => r)     [ImpliesIntro 10]
+
+QED

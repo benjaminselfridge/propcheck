@@ -14,13 +14,26 @@ import System.IO
 data Action
   = Check
   | CheckWithProof
-  | PrintRules
+  | PrintRule
   | SampleProof
   | ShowHelp
   | ShowVersion
 
+-- data PRule
+--   = PAssumption
+--   | PAndIntro
+--   | PAndElim
+--   | PImpliesIntro
+--   | PImpliesElim
+--   | POrIntro
+--   | POrElim
+--   | PBottomElim
+--   | PExcludedMiddle
+--   | PAll
+
 -- | Command line arguments.
 data Args = Args { _checkAction :: !Action
+                 , _rule        :: !String
                  , _proofPath   :: !FilePath
                  }
 
@@ -28,13 +41,16 @@ data Args = Args { _checkAction :: !Action
 checkAction :: Simple Lens Args Action
 checkAction = lens _checkAction (\s v -> s { _checkAction = v })
 
+rule :: Simple Lens Args String
+rule = lens _rule (\s v -> s { _rule = v })
+
 proofPath :: Simple Lens Args FilePath
 proofPath = lens _proofPath (\s v -> s { _proofPath = v })
 
 -- | Initial arguments if nothing is specified.
 defaultArgs :: Args
 defaultArgs = Args { _checkAction = Check
---                     _checkWithProofAction = Check
+                   , _rule = ruleList
                    , _proofPath = ""
                    }
 
@@ -45,14 +61,6 @@ checkWithProofFlag = flagNone [ "proof", "p" ] upd help
   where upd = checkAction .~ CheckWithProof
         help = "Show the parsed proof along with the theorem."
 
-printRulesFlag :: Flag Args
-printRulesFlag = flagNone [ "show-rules" ] upd help
-  where upd = checkAction .~ PrintRules
-        help = "Print the complete list of derivation rules \
-               \that can be used in a proof. Use this flag \
-               \in conjunction with --sample to figure out \
-               \the correct format for writing proof files."
-
 sampleProofFlag :: Flag Args
 sampleProofFlag = flagNone [ "sample", "s" ] upd help
   where upd = checkAction .~ SampleProof
@@ -60,12 +68,42 @@ sampleProofFlag = flagNone [ "sample", "s" ] upd help
                \redirect the file to a file with > sample.pf \
                \and run `check sample.pf`."
 
+parseRuleFlag :: String -> Either String String
+parseRuleFlag rl =
+  case rl of
+    "Assumption"     -> return assumptionSummary
+    "AndIntro"       -> return andIntroSummary
+    "AndElim"        -> return andElimSummary
+    "AndElimR"       -> return andElimSummary
+    "AndElimL"       -> return andElimSummary
+    "ImpliesIntro"   -> return impliesIntroSummary
+    "ImpliesElim"    -> return impliesElimSummary
+    "OrIntro"        -> return orIntroSummary
+    "OrIntroL"       -> return orIntroSummary
+    "OrIntroR"       -> return orIntroSummary
+    "OrElim"         -> return orElimSummary
+    "BottomElim"     -> return bottomElimSummary
+    "ExcludedMiddle" -> return excludedMiddleSummary
+    "all"            -> return ruleList
+    ""               -> return ruleList
+    otherwise        -> Left $ "Unknown rule: " ++ rl
+
+ruleFlag :: Flag Args
+ruleFlag = flagOpt "all" [ "show-rule", "r" ] upd "RULE" help
+  where upd s old =
+          do newRule <- parseRuleFlag s
+--             let newArgs = 
+             Right $ (rule .~ newRule) ((checkAction .~ PrintRule) old)
+        help = "Print info about a particular rule. To see a list of all \
+               \rules, along with a list of all the connectives, use \
+               \--show-rule=all (or provide no explicit argument)."
+
 arguments :: Mode Args
 arguments = mode "check" defaultArgs help filenameArg flags
   where help = checkVersion ++ "\n" ++ copyrightNotice
         flags = [ checkWithProofFlag
-                , printRulesFlag
                 , sampleProofFlag
+                , ruleFlag
                 , flagHelpSimple (checkAction .~ ShowHelp)
                 , flagVersion (checkAction .~ ShowVersion)
                 ]
@@ -286,22 +324,32 @@ allRuleSummaries =
   bottomElimSummary   ++ "\n\n" ++
   excludedMiddleSummary
 
-printAllRuleSummaries :: IO ()
-printAllRuleSummaries = putStr allRuleSummaries
-
 ruleList :: String
 ruleList =
   "Complete list of rules:\n\
   \\n\
   \  Assumption\n\
   \  AndIntro\n\
-  \  AndElimL\n\
-  \  AndElimR\n\
+  \  AndElim(L,R)\n\
   \  ImpliesIntro\n\
   \  ImpliesElim\n\
-  \  OrIntro\n\
+  \  OrIntro(L,R)\n\
   \  OrElim\n\
-  \  BottomElim\n"
+  \  BottomElim\n\
+  \\n\
+  \Complete list of connectives:\n\
+  \  0-ary:\n\
+  \    _|_\n\
+  \  1-ary:\n\
+  \    !    (!a, abbreviates a => _|_)\n\
+  \  2-ary:\n\
+  \    &    (a & b)\n\
+  \    |    (a | b)\n\
+  \    =>   (a => b)\n\
+  \    <=>  (a <=> b, abbreviates (a => b) & (b => a))\n\
+  \\n\
+  \(if you want to see more info on a particular rule, try -r=<rule>, where \n\
+  \<rule> is one of the above)"
 
 main :: IO ()
 main = do
@@ -311,8 +359,8 @@ main = do
       check (args^.proofPath)
     CheckWithProof -> do
       checkWithProof (args^.proofPath)
-    PrintRules -> printAllRuleSummaries
     SampleProof -> sampleProof
+    PrintRule -> putStrLn (args ^. rule)
     ShowHelp ->
       print $ helpText [] HelpFormatDefault arguments
     ShowVersion ->

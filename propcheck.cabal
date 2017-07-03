@@ -21,7 +21,7 @@ library
   hs-source-dirs: src
   exposed-modules:
     Logic.Propositional
-    Logic.Propositional.Prover
+--    Logic.Propositional.Prover
     Logic.Propositional.Parser
   other-modules:
     Logic.Propositional.Syntax

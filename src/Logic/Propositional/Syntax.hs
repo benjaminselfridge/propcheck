@@ -54,6 +54,7 @@ data Proof = Assumption Formula
            | OrElim Formula Proof Proof Proof
            | BottomElim Formula Proof
            | ExcludedMiddle Formula
+           deriving (Eq, Ord)
 
 conclusion :: Proof -> Formula
 conclusion (Assumption f) = f

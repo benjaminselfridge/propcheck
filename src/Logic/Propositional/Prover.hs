@@ -1,7 +1,7 @@
+-- This module is purely experimental; I wouldn't suggest using it.
+
 module Logic.Propositional.Prover
-  ( prover1
-  , prover2
---  , conjuncts
+  (
   ) where
 
 import Logic.Propositional
@@ -133,37 +133,23 @@ prover4 assumptions f
 -- implies elimination rule. This is the first time the prover will be
 -- considering several potential proofs and deciding between each of them.
 
--- Takes a formula f and a formula g, and returns a set of subformulas of g
--- where f appears on the right hand side of an implication.
-findAsRHS :: Formula -> Formula -> S.Set Formula
-findAsRHS f (Implies g h)
-  | h == f = S.singleton $ Implies g h
-  | otherwise = findAsRHS f h
-findAsRHS f (And g h) = findAsRHS f g `S.union` findAsRHS f h
-findAsRHS f (Or g h)  = findAsRHS f g `S.union` findAsRHS f h
-findAsRHS f _ = S.empty
+-- This is a work in progress. I'm not happy with it yet.
 
-fewerAssumptions :: Proof -> Proof -> Bool
-fewerAssumptions p1 p2
-  | Right a1 <- checkProof p1,
-    Right a2 <- checkProof p2 =
-      length a1 < length a2
+-- -- Takes a formula f and a formula g, and returns a set of subformulas of g
+-- -- where f appears on the right hand side of an implication.
+-- findAsRHS :: Formula -> Formula -> S.Set Formula
+-- findAsRHS f (Implies g h)
+--   | h == f = S.singleton $ Implies g h
+--   | otherwise = findAsRHS f h
+-- findAsRHS f (And g h) = findAsRHS f g `S.union` findAsRHS f h
+-- findAsRHS f (Or g h)  = findAsRHS f g `S.union` findAsRHS f h
+-- findAsRHS f _ = S.empty
 
-prover5 :: Assumptions -> Formula -> Proof
-prover5 assumptions f
-  | f `S.member` assumptions = Assumption f
-  | (conjunct:_) <- catMaybes $ (findAsLConjunct f) <$> (S.toList assumptions) =
-      AndElimL f (prover5 assumptions conjunct)
-  | (conjunct:_) <- catMaybes $ (findAsRConjunct f) <$> (S.toList assumptions) =
-      AndElimR f (prover5 assumptions conjunct)
-  | And g h <- f,
-    g_proof <- prover5 assumptions g,
-    h_proof <- prover5 assumptions h =
-      AndIntro f g_proof h_proof
-  | Implies g h <- f,
-    h_proof <- prover5 (S.insert g assumptions) h =
-      ImpliesIntro f h_proof
-  | otherwise = Assumption f
+-- fewerAssumptions :: Proof -> Proof -> Bool
+-- fewerAssumptions p1 p2
+--   | Right a1 <- checkProof p1,
+--     Right a2 <- checkProof p2 =
+--       length a1 < length a2
 
 -- prover5' :: Assumptions -> Formula -> [Proof]
 -- prover5' assumptions f
@@ -188,9 +174,61 @@ prover5 assumptions f
 --   where makeImpliesProof g@(Implies h _) =
 --           liftA2 (ImpliesElim f) (prover5' assumptions h) (prover5' assumptions g)
 
--- prover5 assumptions proof = pickProof $ prover5' assumptions proof
+-- prover5 assumptions f = pickProof $ prover5' assumptions f
 --   where  pickProof (c:cs) = foldl withFewerAssumptions c (c:cs)
 --          withFewerAssumptions p1 p2 = if p1 `fewerAssumptions` p2 then p1 else p2
---        pickProof (c:cs) = foldl fewerAssumptions c (c:cs)
--- It's not the candidate proof with the fewest assumptions. It's the one where
--- the proof of h has the fewest assumptions! ... or is it?
+--  --      pickProof (c:cs) = foldl fewerAssumptions c (c:cs)
+-- -- It's not the candidate proof with the fewest assumptions. It's the one where
+-- -- the proof of h has the fewest assumptions! ... or is it?
+
+
+-------------------------------------------------------
+--                   sequentProver                   --
+-------------------------------------------------------
+
+andProofs f xs ys = S.fromList (liftA2 (\x y -> AndIntro f x y) (S.toList xs) (S.toList ys))
+orProofs f xs ys = (S.map (OrIntroL f) xs) `S.union` (S.map (OrIntroR f) ys)
+impliesProofs f = S.map (ImpliesIntro f)
+
+-- findFormula f g
+-- returns the set of subformulas in g that correspond to a potential way to derive f from g.
+findVariable :: String -> Formula -> S.Set Formula
+findVariable x (And f g)
+  | Var y <- f, x == y = S.insert (And f g) (findVariable x g)
+  | Var z <- g, x == z = S.insert (And f g) (findVariable x f)
+  | Var _ <- f, Var _ <- g = S.empty
+  | otherwise = findVariable x f `S.union` findVariable x g
+findVariable x (Implies f g)
+  | Var y <- g, x == y = S.singleton $ Implies f g
+  | Var _ <- g = S.empty
+  | otherwise = findVariable x g
+findVariable _ _ = S.empty
+                
+-- sequentProver :: Assumptions -> Formula -> S.Set Proof
+-- sequentProver assumptions f
+--   | f `S.member` assumptions = S.singleton $ Assumption f
+--   | And g h <- f,
+--     g_proofs <- sequentProver assumptions g,
+--     h_proofs <- sequentProver assumptions h =
+--       andProofs f g_proofs h_proofs
+--   | Or g h <- f,
+--     g_proofs <- sequentProver assumptions g,
+--     h_proofs <- sequentProver assumptions h =
+--       orProofs f g_proofs h_proofs
+--   | Implies g h <- f,
+--     promoteProofs <- sequentProver (S.insert g assumptions) h =
+--       impliesProofs f promoteProofs
+
+  -- So, we are in a variable case or bottom.
+  -- | (conjunct:_) <- catMaybes $ (findAsLConjunct f) <$> (S.toList assumptions) =
+  --     AndElimL f (prover3 assumptions conjunct)
+  -- | (conjunct:_) <- catMaybes $ (findAsRConjunct f) <$> (S.toList assumptions) =
+  --     AndElimR f (prover3 assumptions conjunct)
+
+  -- We're to find all instances of f as:
+  --  1) conjuncts in the assumptions
+  --  2) consequences in the assumptions (right-hand sides)
+  
+
+  | otherwise =
+    error ""
