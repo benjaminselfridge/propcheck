@@ -3,8 +3,6 @@
 module Logic.Propositional.Parser.ProofLine
   (ProofRef(..),
    ProofLine,
-   SimpleGraph,
-   findCycle,
    genProof)
   where
 
