@@ -50,6 +50,22 @@ findCycle visitedNodes start graph
   where children = lookup start graph
         findCycleChild child = findCycle (child:visitedNodes) child graph
 
+lineToNode :: ProofLine -> (Int, [Int])
+lineToNode (l,(_,AssumptionRef)) = (l,[])
+lineToNode (l,(_,AndIntroRef x y)) = (l,[x,y])
+lineToNode (l,(_,AndElimLRef x)) = (l,[x])
+lineToNode (l,(_,AndElimRRef x)) = (l,[x])
+lineToNode (l,(_,ImpliesIntroRef x)) = (l,[x])
+lineToNode (l,(_,ImpliesElimRef x y)) = (l,[x,y])
+lineToNode (l,(_,OrIntroLRef x)) = (l,[x])
+lineToNode (l,(_,OrIntroRRef x)) = (l,[x])
+lineToNode (l,(_,OrElimRef x y z)) = (l,[x,y,z])
+lineToNode (l,(_,BottomElimRef x)) = (l,[x])
+lineToNode (l,(_,ExcludedMiddleRef)) = (l,[])
+
+linesToGraph :: [ProofLine] -> SimpleGraph
+linesToGraph = map lineToNode
+
 -- We assume there are no cycles.
 genProofFromLine :: Int -> Formula -> ProofRef  -> [ProofLine] -> Either String Proof
 genProofFromLine lineNum f ref proofLines
@@ -104,9 +120,11 @@ genProofFromLine lineNum f ref proofLines
 
 genProof :: [ProofLine] -> Either String Proof
 genProof [] = Left "empty proof"
-genProof proofLines =
+genProof proofLines = do
   case duplicateKeys proofLines of
     Just dup  -> Left $ "duplicate keys: " ++ show dup
     Nothing ->
-      genProofFromLine i f f_ref proofLines
+      case findCycle [] i (linesToGraph proofLines) of
+        Just cycle -> Left $ "cyclic dependencies: " ++ show cycle
+        Nothing -> genProofFromLine i f f_ref proofLines
       where (i, (f, f_ref)) = last proofLines
