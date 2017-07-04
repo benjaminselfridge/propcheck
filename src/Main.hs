@@ -1,7 +1,8 @@
 module Main where
 
 import Logic.Propositional
-import Logic.Propositional.Parser
+import Logic.Propositional.Natural
+import Logic.Propositional.Natural.Parser
 
 import Control.Lens
 import Control.Monad
@@ -163,8 +164,8 @@ checkWithProof path = do
     Left e -> putStrLn e
     Right proof -> putStrLn $ ppTheoremAndProof proof
 
-sampleProofFile :: String
-sampleProofFile =
+sampleProof :: String
+sampleProof =
   "-- Here is a simple proof of transitivity. Also, this is a comment!\n\
   \\n\
   \-- Every proof starts with the keyword \"Proof.\"\n\
@@ -185,8 +186,8 @@ sampleProofFile =
   \-- Our proof is complete!\n\
   \QED\n"
 
-sampleProof :: IO ()
-sampleProof = putStr sampleProofFile
+putSampleProof :: IO ()
+putSampleProof = putStr sampleProof
 
 assumptionSummary :: String
 assumptionSummary =
@@ -359,7 +360,7 @@ main = do
       check (args^.proofPath)
     CheckWithProof -> do
       checkWithProof (args^.proofPath)
-    SampleProof -> sampleProof
+    SampleProof -> putSampleProof
     PrintRule -> putStrLn (args ^. rule)
     ShowHelp ->
       print $ helpText [] HelpFormatDefault arguments

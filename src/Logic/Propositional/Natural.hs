@@ -1,47 +1,18 @@
--- | Logic.Propositional.Syntax
+-- | Logic.Propositional.Natural
 
--- This module defines the syntax of constructive propositional
--- calculus. We introduce two major datatypes, Formula and Proof.
-
-module Logic.Propositional.Syntax
-  ( Formula(..)
-  , Proof(..)
+module Logic.Propositional.Natural
+  ( Proof(..)
   , conclusion
-  , a, b, c
-  , (~&), (~|), (~>), bot, neg, iff
+  , Assumptions
+  , checkProof
+  , ppTheorem
+  , ppTheoremAndProof
   ) where
 
+import Logic.Propositional
+
+import Data.List
 import qualified Data.Set as S
-
-data Formula = Var String
-             | And Formula Formula
-             | Or Formula Formula
-             | Implies Formula Formula
-             | Bottom
-  deriving (Eq, Ord)
-
-showFormula :: Formula -> String
-showFormula (Var s) = s
-showFormula (And (Implies a b) (Implies c d))
-  | a == d && b == c = "(" ++ showFormula a ++ " <=> " ++ showFormula b ++ ")"
-showFormula (And a b) = "(" ++ showFormula a ++ " & " ++ showFormula b ++ ")"
-showFormula (Or a b) = "(" ++ showFormula a ++ " | " ++ showFormula b ++ ")"
-showFormula (Implies a Bottom) = "!" ++ showFormula a
-showFormula (Implies a b) = "(" ++ showFormula a ++ " => " ++ showFormula b ++ ")"
-showFormula Bottom = "_|_"
-
-showFormulaTop :: Formula -> String
-showFormulaTop (Var s) = s
-showFormulaTop (And (Implies a b) (Implies c d))
-  | a == d && b == c = showFormula a ++ " <=> " ++ showFormula b
-showFormulaTop (And a b) = showFormula a ++ " & " ++ showFormula b
-showFormulaTop (Or a b) = showFormula a ++ " | " ++ showFormula b
-showFormulaTop (Implies a Bottom) = "!" ++ showFormula a
-showFormulaTop (Implies a b) = showFormula a ++ " => " ++ showFormula b
-showFormulaTop Bottom = "_|_"
-
-instance Show Formula where
-  show = showFormulaTop
 
 data Proof = Assumption Formula
            | AndIntro Formula Proof Proof
@@ -55,6 +26,8 @@ data Proof = Assumption Formula
            | BottomElim Formula Proof
            | ExcludedMiddle Formula
            deriving (Eq, Ord)
+
+type Assumptions = S.Set Formula
 
 conclusion :: Proof -> Formula
 conclusion (Assumption f) = f
@@ -114,17 +87,69 @@ showProof = showProof_ S.empty ""
 instance Show Proof where
   show = showProof
 
--- | Convenience definitions for variables
-a = Var "a"
-b = Var "b"
-c = Var "c"
+checkProof :: Proof -> Either String Assumptions
+checkProof proof
+  | Assumption f <- proof = return $ S.singleton f
+  | AndIntro (And f g) p1 p2 <- proof,
+    conclusion p1 == f,
+    conclusion p2 == g =
+      do a1 <- checkProof p1
+         a2 <- checkProof p2
+         return $ S.union a1 a2
+  | AndElimL f p <- proof,
+    And g _ <- conclusion p,
+    g == f =
+      checkProof p
+  | AndElimR f p <- proof,
+    And _ g <- conclusion p,
+    g == f =
+      checkProof p
+  | ImpliesIntro (Implies f g) p <- proof,
+    conclusion p == g =
+      do a <- checkProof p
+         return $ S.delete f a
+  | ImpliesElim f p1 p2 <- proof,
+    Implies g h <- conclusion p2,
+    conclusion p1 == g,
+    h == f =
+      do a1 <- checkProof p1
+         a2 <- checkProof p2
+         return $ S.union a1 a2
+  | OrIntroL (Or f g) p <- proof,
+    conclusion p == f =
+      checkProof p
+  | OrIntroR (Or f g) p <- proof,
+    conclusion p == g =
+      checkProof p
+  | OrElim f p1 p2 p3 <- proof,
+    conclusion p2 == f,
+    conclusion p3 == f,
+    Or g h <- conclusion p1 =
+      do a1 <- checkProof p1
+         a2 <- checkProof p2
+         a3 <- checkProof p3
+         let a2' = S.delete g a2
+         let a3' = S.delete h a3
+         return $ S.union a1 (S.union a2' a3')
+  | BottomElim f p <- proof,
+    Bottom <- conclusion p =
+      do checkProof p
+  | ExcludedMiddle (Or f (Implies g Bottom)) <- proof,
+    f == g =
+      return S.empty
+  | otherwise = Left $ "Ill-formed proof:\n" ++ show proof
 
--- Infix operators for formula construction
-(~&) = And
-(~|) = Or
-(~>) = Implies
-bot = Bottom
+ppTheorem :: Proof -> String
+ppTheorem p = case checkProof p of
+  Right as -> "Thm: [" ++ showAssumptions as ++ "]"  ++
+              " |- " ++ show (conclusion p)
+  Left s -> s
+  where showAssumptions = intercalate ", " . map show . S.toList
 
--- Derived operators for formula construction
-neg f = Implies f bot
-iff f g = And (Implies f g) (Implies g f)
+ppTheoremAndProof :: Proof -> String
+ppTheoremAndProof p = case checkProof p of
+  Right as -> "Thm: [" ++ showAssumptions as ++ "]"  ++
+              " |- " ++ show (conclusion p) ++ "\n" ++
+              "Proof:\n" ++ show p
+  Left s -> s
+  where showAssumptions = intercalate ", " . map show . S.toList

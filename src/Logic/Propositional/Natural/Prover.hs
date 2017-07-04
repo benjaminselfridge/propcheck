@@ -5,6 +5,7 @@ module Logic.Propositional.Prover
   ) where
 
 import Logic.Propositional
+import Logic.Propositional.Natural
 
 import Control.Applicative
 import Data.List
@@ -203,7 +204,18 @@ findVariable x (Implies f g)
   | Var _ <- g = S.empty
   | otherwise = findVariable x g
 findVariable _ _ = S.empty
-                
+
+sf' :: Formula -> S.Set Formula
+sf' f@(And g h)     = S.insert f (sf' g `S.union` sf h)
+sf' f@(Implies g h) = S.insert f (sf' h)
+sf' f               = S.singleton f
+
+sf :: Formula -> S.Set Formula
+sf f = S.delete f (sf' f)
+
+sfSets :: S.Set Formula -> S.Set Formula
+sfSets = foldl S.union S.empty . S.map sf
+                   
 -- sequentProver :: Assumptions -> Formula -> S.Set Proof
 -- sequentProver assumptions f
 --   | f `S.member` assumptions = S.singleton $ Assumption f
@@ -229,6 +241,3 @@ findVariable _ _ = S.empty
   --  1) conjuncts in the assumptions
   --  2) consequences in the assumptions (right-hand sides)
   
-
-  | otherwise =
-    error ""

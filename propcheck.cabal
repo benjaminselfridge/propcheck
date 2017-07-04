@@ -21,12 +21,10 @@ library
   hs-source-dirs: src
   exposed-modules:
     Logic.Propositional
---    Logic.Propositional.Prover
-    Logic.Propositional.Parser
+    Logic.Propositional.Natural
+    Logic.Propositional.Natural.Parser
   other-modules:
-    Logic.Propositional.Syntax
-    Logic.Propositional.Semantics
-    Logic.Propositional.Parser.ProofLine
+    Logic.Propositional.Natural.ProofLine
   default-language: Haskell2010
 
 -- test-suite propcheck
@@ -57,10 +55,9 @@ executable check
   main-is:             Main.hs
   other-modules:
     Logic.Propositional
-    Logic.Propositional.Syntax
-    Logic.Propositional.Semantics
-    Logic.Propositional.Parser
-    Logic.Propositional.Parser.ProofLine
+    Logic.Propositional.Natural
+    Logic.Propositional.Natural.Parser
+    Logic.Propositional.Natural.ProofLine
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5,
                        cmdargs,

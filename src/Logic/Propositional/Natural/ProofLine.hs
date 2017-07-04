@@ -1,12 +1,13 @@
 -- | ProofLine.hs
 
-module Logic.Propositional.Parser.ProofLine
+module Logic.Propositional.Natural.ProofLine
   (ProofRef(..),
    ProofLine,
    genProof)
   where
 
 import Logic.Propositional
+import Logic.Propositional.Natural
 
 import Data.Maybe
 import qualified Data.Set as S

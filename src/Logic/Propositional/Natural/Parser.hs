@@ -1,13 +1,14 @@
 -- | Parser.hs
 
--- module to parse formulas and proofs.
+-- module to parse formulas and proofs in a natural deduction style.
 
-module Logic.Propositional.Parser
+module Logic.Propositional.Natural.Parser
   ( parseProof
   ) where
 
 import Logic.Propositional
-import Logic.Propositional.Parser.ProofLine
+import Logic.Propositional.Natural
+import Logic.Propositional.Natural.ProofLine
 
 import Data.Maybe
 import Text.ParserCombinators.Parsec
