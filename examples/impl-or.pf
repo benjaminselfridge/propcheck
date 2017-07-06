@@ -3,14 +3,14 @@
 Proof.
 
 -- Case split on p => q
-1.  (p => q) | !(p => q)                    [ExcludedMiddle]
+1.  (p => q) | ~(p => q)                    [ExcludedMiddle]
 
 -- Case 1. p => q
 2.  p => q                                  [Assumption]      --*
 3.  (p => q) | (q => p)                     [OrIntroL 2]
 
--- Case 2. !(p => q), show q => p.
-4.  !(p => q)                               [Assumption]      --*
+-- Case 2. ~(p => q), show q => p.
+4.  ~(p => q)                               [Assumption]      --*
 5.  q                                       [Assumption]      --*
 6.  p => q                                  [ImpliesIntro 5]
 7.  _|_                                     [ImpliesElim 6 4]

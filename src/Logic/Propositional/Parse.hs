@@ -1,9 +1,6 @@
--- | Parser.hs
-
--- module to parse formulas and proofs in a natural deduction style.
-
-module Logic.Propositional.Natural.Parser
-  ( parseProof
+module Logic.Propositional.Parse
+  ( parseFormula
+  , parseProof
   ) where
 
 import Logic.Propositional
@@ -73,7 +70,7 @@ p_bottom =
      <?> "_|_"
 
 p_neg =
-  do string "!"
+  do string "~"
      spacebars
      x <- p_formula
      return $ Implies x Bottom

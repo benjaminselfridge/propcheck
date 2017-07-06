@@ -1,37 +1,37 @@
--- a proof of (a => b) <=> (!b => !a)
+-- a proof of (a => b) <=> (~b => ~a)
 
 Proof.
 
 -- =>
 1. a => b [Assumption] --*
-2. !b [Assumption] --*
+2. ~b [Assumption] --*
 3. a [Assumption] --*
 4. b [ImpliesElim 3 1]
 5. _|_ [ImpliesElim 4 2]
-6. !a [ImpliesIntro 5]
-7. !b => !a [ImpliesIntro 6]
-8. (a => b) => (!b => !a) [ImpliesIntro 7]
+6. ~a [ImpliesIntro 5]
+7. ~b => ~a [ImpliesIntro 6]
+8. (a => b) => (~b => ~a) [ImpliesIntro 7]
 
 -- <=
-9. !b => !a [Assumption] --*
+9. ~b => ~a [Assumption] --*
 10. a [Assumption] --*
 
--- case split on b | !b to prove b
+-- case split on b | ~b to prove b
 -- Case 1: Assume b
 11. b [Assumption] --*
 
--- Case 2: Assume !b
-12. !b [Assumption] --*
-13. !a [ImpliesElim 12 9]
+-- Case 2: Assume ~b
+12. ~b [Assumption] --*
+13. ~a [ImpliesElim 12 9]
 14. _|_ [ImpliesElim 10 13]
 15. b [BottomElim 14]
 
-16. b | !b [ExcludedMiddle]
+16. b | ~b [ExcludedMiddle]
 17. b [OrElim 16 11 15]
 18. a => b [ImpliesIntro 17]
-19. (!b => !a) => (a => b) [ImpliesIntro 18]
+19. (~b => ~a) => (a => b) [ImpliesIntro 18]
 
 -- Put them together
---20. (a => b) <=> (!b => !a) [AndIntro 8 19]
+--20. (a => b) <=> (~b => ~a) [AndIntro 8 19]
 
 QED

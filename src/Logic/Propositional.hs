@@ -22,7 +22,7 @@ showFormula (And (Implies a b) (Implies c d))
   | a == d && b == c = "(" ++ showFormula a ++ " <=> " ++ showFormula b ++ ")"
 showFormula (And a b) = "(" ++ showFormula a ++ " & " ++ showFormula b ++ ")"
 showFormula (Or a b) = "(" ++ showFormula a ++ " | " ++ showFormula b ++ ")"
-showFormula (Implies a Bottom) = "!" ++ showFormula a
+showFormula (Implies a Bottom) = "~" ++ showFormula a
 showFormula (Implies a b) = "(" ++ showFormula a ++ " => " ++ showFormula b ++ ")"
 showFormula Bottom = "_|_"
 
@@ -32,7 +32,7 @@ showFormulaTop (And (Implies a b) (Implies c d))
   | a == d && b == c = showFormula a ++ " <=> " ++ showFormula b
 showFormulaTop (And a b) = showFormula a ++ " & " ++ showFormula b
 showFormulaTop (Or a b) = showFormula a ++ " | " ++ showFormula b
-showFormulaTop (Implies a Bottom) = "!" ++ showFormula a
+showFormulaTop (Implies a Bottom) = "~" ++ showFormula a
 showFormulaTop (Implies a b) = showFormula a ++ " => " ++ showFormula b
 showFormulaTop Bottom = "_|_"
 

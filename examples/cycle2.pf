@@ -13,7 +13,7 @@ Proof.
    4. b | ~b [ExcludedMiddle]
       -- Case 1: b
       5. b [Assumption]
-      6. a & b [AndIntro 3 5]
+      6. a & b [AndIntro 3 15]
       7. _|_ [ImpliesElim 6 1]
       8. ~b [ImpliesIntro 7]
       9. ~a | ~b [OrIntroR 8]

@@ -14,7 +14,7 @@ command-line tool. propcheck is a proof *checker* for propositional
 logic proofs written in the Gentzen-style natural deduction. We
 adapted our proof rules from the book "Type Theory and Functional
 Programming" by Simon Thompson. The primitive connectives are &, |,
-=>, and \_|\_. There are two abbreviated connectives, !a (a => \_|\_) and
+=>, and \_|\_. There are two abbreviated connectives, ~a (a => \_|\_) and
 a <=> b (a => b & b => a).
 
 ## Installation

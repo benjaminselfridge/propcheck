@@ -1,4 +1,4 @@
--- Here is a simple proof of transitivity. Also, this is a comment!
+-- Here is a simple proof of transitivity. Also, this is a comment~
 
 -- Every proof starts with the keyword "Proof."
 Proof.
@@ -15,5 +15,5 @@ Proof.
 -- The last statement in a proof is taken as the conclusion by default.
 6. a => c [ImpliesIntro 5]
 
--- Our proof is complete!
+-- Our proof is complete~
 QED

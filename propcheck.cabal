@@ -22,7 +22,8 @@ library
   exposed-modules:
     Logic.Propositional
     Logic.Propositional.Natural
-    Logic.Propositional.Natural.Parser
+    Logic.Propositional.Sequent
+    Logic.Propositional.Parse
   other-modules:
     Logic.Propositional.Natural.ProofLine
   default-language: Haskell2010
@@ -56,8 +57,9 @@ executable check
   other-modules:
     Logic.Propositional
     Logic.Propositional.Natural
-    Logic.Propositional.Natural.Parser
     Logic.Propositional.Natural.ProofLine
+    Logic.Propositional.Sequent
+    Logic.Propositional.Parse
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5,
                        cmdargs,

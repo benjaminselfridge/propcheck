@@ -1,10 +1,10 @@
--- 1.5   From the assumption (a | b) prove !(!a & !b).
+-- 1.5   From the assumption (a | b) prove ~(~a & ~b).
 
 Proof.
 1. (a | b) [Assumption]
-2. (!a & !b) [Assumption]
-3. !a [AndElimL 2]
-4. !b [AndElimR 2]
+2. (~a & ~b) [Assumption]
+3. ~a [AndElimL 2]
+4. ~b [AndElimR 2]
 -- Case split: Assume a, derive bottom. Then assume b, derive bottom.
 -- Case 1:
 5. a [Assumption]
@@ -13,5 +13,5 @@ Proof.
 7. b [Assumption]
 8. _|_ [ImpliesElim 7 4]
 9. _|_ [OrElim 1 6 8] -- discharges assumptions a and b.
-10. !(!a & !b) [ImpliesIntro 9]
+10. ~(~a & ~b) [ImpliesIntro 9]
 QED

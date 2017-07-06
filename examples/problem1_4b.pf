@@ -1,9 +1,9 @@
--- 1.4b   Give a proof of a => !!a.
+-- 1.4b   Give a proof of a => ~~a.
 
 Proof.
 1. a [Assumption]
-2. !a [Assumption]
+2. ~a [Assumption]
 3. _|_ [ImpliesElim 1 2]
-4. !!a [ImpliesIntro 3]
-5. a => !!a [ImpliesIntro 4]
+4. ~~a [ImpliesIntro 3]
+5. a => ~~a [ImpliesIntro 4]
 QED

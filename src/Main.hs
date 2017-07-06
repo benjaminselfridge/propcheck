@@ -1,8 +1,9 @@
 module Main where
 
 import Logic.Propositional
-import Logic.Propositional.Natural
-import Logic.Propositional.Natural.Parser
+import qualified Logic.Propositional.Natural as N
+import qualified Logic.Propositional.Sequent as S
+import Logic.Propositional.Parse
 
 import Control.Lens
 import Control.Monad
@@ -16,21 +17,10 @@ data Action
   = Check
   | CheckWithProof
   | PrintRule
+  | Prove
   | SampleProof
   | ShowHelp
   | ShowVersion
-
--- data PRule
---   = PAssumption
---   | PAndIntro
---   | PAndElim
---   | PImpliesIntro
---   | PImpliesElim
---   | POrIntro
---   | POrElim
---   | PBottomElim
---   | PExcludedMiddle
---   | PAll
 
 -- | Command line arguments.
 data Args = Args { _checkAction :: !Action
@@ -58,7 +48,7 @@ defaultArgs = Args { _checkAction = Check
 -- | Flags.
 
 checkWithProofFlag :: Flag Args
-checkWithProofFlag = flagNone [ "proof", "p" ] upd help
+checkWithProofFlag = flagNone [ "show-proof", "p" ] upd help
   where upd = checkAction .~ CheckWithProof
         help = "Show the parsed proof along with the theorem."
 
@@ -93,11 +83,16 @@ ruleFlag :: Flag Args
 ruleFlag = flagOpt "all" [ "show-rule", "r" ] upd "RULE" help
   where upd s old =
           do newRule <- parseRuleFlag s
---             let newArgs = 
              Right $ (rule .~ newRule) ((checkAction .~ PrintRule) old)
         help = "Print info about a particular rule. To see a list of all \
                \rules, along with a list of all the connectives, use \
                \--show-rule=all (or provide no explicit argument)."
+
+proveFlag :: Flag Args
+proveFlag = flagNone ["prove"] upd help
+  where upd = checkAction .~ Prove
+        help = "Prove a propositional formula using the sequent calculus \
+               \using a REPL interface. This option is currently in beta."
 
 arguments :: Mode Args
 arguments = mode "check" defaultArgs help filenameArg flags
@@ -105,6 +100,7 @@ arguments = mode "check" defaultArgs help filenameArg flags
         flags = [ checkWithProofFlag
                 , sampleProofFlag
                 , ruleFlag
+                , proveFlag
                 , flagHelpSimple (checkAction .~ ShowHelp)
                 , flagVersion (checkAction .~ ShowVersion)
                 ]
@@ -150,7 +146,7 @@ check path = do
   proofString <- readFile path
   case parseProof proofString of
     Left e -> putStrLn e
-    Right proof -> putStrLn $ ppTheorem proof
+    Right proof -> putStrLn $ N.ppTheorem proof
 
 
 checkWithProof :: FilePath -> IO ()
@@ -162,7 +158,7 @@ checkWithProof path = do
   proofString <- readFile path
   case parseProof proofString of
     Left e -> putStrLn e
-    Right proof -> putStrLn $ ppTheoremAndProof proof
+    Right proof -> putStrLn $ N.ppTheoremAndProof proof
 
 sampleProof :: String
 sampleProof =
@@ -302,7 +298,7 @@ excludedMiddleSummary :: String
 excludedMiddleSummary =
   "-- Rule of excluded middle --\
   \\n\
-  \Formats: f | !f [ExcludedMiddle]\n\
+  \Formats: f | ~f [ExcludedMiddle]\n\
   \\n\
   \The rule of excluded middle takes constructive logic and turns it into\n\
   \classical logic, where every statement is either true or false. It\n\
@@ -342,7 +338,7 @@ ruleList =
   \  0-ary:\n\
   \    _|_\n\
   \  1-ary:\n\
-  \    !    (!a, abbreviates a => _|_)\n\
+  \    ~    (~a, abbreviates a => _|_)\n\
   \  2-ary:\n\
   \    &    (a & b)\n\
   \    |    (a | b)\n\
@@ -351,6 +347,29 @@ ruleList =
   \\n\
   \(if you want to see more info on a particular rule, try -r=<rule>, where \n\
   \<rule> is one of the above)"
+
+proveREPL :: Bool -> IO ()
+proveREPL pp = do
+  putStr "> "
+  hFlush stdout
+  fStr <- getLine
+  case fStr of
+    ":q" -> return ()
+    ":h" -> do putStrLn "Type any formula to prove or find a counterexample."
+               putStrLn "Special commands:"
+               putStrLn "  :q -> quit"
+               putStrLn "  :h -> display this help message"
+               putStrLn "  :p -> toggle pretty printing (enabled by default)"
+               proveREPL pp
+    ":p" -> case pp of
+              True  -> do { putStrLn "Pretty printing disabled.";proveREPL False }
+              False -> do { putStrLn "Pretty printing enabled.";proveREPL True }
+    _ -> case parseFormula fStr of
+      Left e -> do { print e; proveREPL pp }
+      Right f -> do
+        if pp then putStr (S.ppTheoremAndProof f) else putStrLn (S.printTheoremAndProof f)
+        proveREPL pp
+    
 
 main :: IO ()
 main = do
@@ -362,6 +381,10 @@ main = do
       checkWithProof (args^.proofPath)
     SampleProof -> putSampleProof
     PrintRule -> putStrLn (args ^. rule)
+    Prove -> do
+      putStrLn "Enter a formula. Type \":h\" for help.\n"
+      proveREPL True
+      putStrLn "Bye!"
     ShowHelp ->
       print $ helpText [] HelpFormatDefault arguments
     ShowVersion ->

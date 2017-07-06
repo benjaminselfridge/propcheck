@@ -1,12 +1,12 @@
--- 1.4a   Give a proof of (a => b) => (!b => !a).
+-- 1.4a   Give a proof of (a => b) => (~b => ~a).
 
 Proof.
 1. a => b        [Assumption]
-2. !b            [Assumption]
+2. ~b            [Assumption]
 3. a             [Assumption]
 4. b             [ImpliesElim 3 1]
 5. _|_           [ImpliesElim 4 2]
-6. !a            [ImpliesIntro 5]  -- discharges 3
-7. !b => !a      [ImpliesIntro 6]  -- discharges 2
-8. (a => b) => (!b => !a) [ImpliesIntro 7] -- discharges 1
+6. ~a            [ImpliesIntro 5]  -- discharges 3
+7. ~b => ~a      [ImpliesIntro 6]  -- discharges 2
+8. (a => b) => (~b => ~a) [ImpliesIntro 7] -- discharges 1
 QED
