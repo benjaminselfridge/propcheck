@@ -2,11 +2,14 @@ module Logic.Propositional
   ( Formula(..)
   , a, b, c
   , (~&), (~|), (~>), bot, neg, iff
+  , Assignment
+  , showAssignment
   ) where
 
 -- This module defines the syntax of propositional calculus. We
 -- introduce the Formula datatype.
 
+import Data.List
 import qualified Data.Set as S
 
 data Formula = Var String
@@ -53,3 +56,11 @@ bot = Bottom
 -- Derived operators for formula construction
 neg f = Implies f bot
 iff f g = And (Implies f g) (Implies g f)
+
+-- | Assignments
+
+type Assignment = [(String, Bool)]
+
+showAssignment :: Assignment -> String
+showAssignment = intercalate "\n" . map showPair
+  where showPair (var, val) = var ++ " = " ++ show val

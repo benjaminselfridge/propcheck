@@ -40,12 +40,6 @@ data Proof = Axiom Sequent
            | LImplies Sequent Proof Proof
            | LBottom Sequent Proof
 
-type Assignment = [(String, Bool)]
-
-showAssignment :: Assignment -> String
-showAssignment = intercalate "\n" . map showPair
-  where showPair (var, val) = var ++ " = " ++ show val
-
 conclusion :: Proof -> Sequent
 conclusion (Axiom    s    ) = s
 conclusion (RAnd     s _ _) = s
@@ -161,7 +155,7 @@ coLines _ _ = error "coLines called with two empty arguments"
 
 spliceLines :: String -> String -> String
 spliceLines s1 s2 = unlines $ zipWith spliceLine lines1 lines2
-  where spliceLine s1 s2 = s1 ++ "   " ++ s2
+  where spliceLine s1 s2 = s1 ++ " | " ++ s2
         (lines1, lines2) = coLines (lines s1) (lines s2)
 
 padLine :: Int -> Int -> String -> String

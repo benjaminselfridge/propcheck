@@ -4,6 +4,7 @@ import Logic.Propositional
 import qualified Logic.Propositional.Natural as N
 import qualified Logic.Propositional.Sequent as S
 import Logic.Propositional.Parse
+import Logic.Propositional.TruthTable
 
 import Control.Lens
 import Control.Monad
@@ -92,7 +93,7 @@ proveFlag :: Flag Args
 proveFlag = flagNone ["prove"] upd help
   where upd = checkAction .~ Prove
         help = "Prove a propositional formula using the sequent calculus \
-               \using a REPL interface. This option is currently in beta."
+               \using a REPL interface."
 
 arguments :: Mode Args
 arguments = mode "check" defaultArgs help filenameArg flags
@@ -348,27 +349,37 @@ ruleList =
   \(if you want to see more info on a particular rule, try -r=<rule>, where \n\
   \<rule> is one of the above)"
 
-proveREPL :: Bool -> IO ()
-proveREPL pp = do
+proveREPL :: Bool -> Bool -> IO ()
+proveREPL pp seqMode = do
   putStr "> "
   hFlush stdout
   fStr <- getLine
-  case fStr of
-    ":q" -> return ()
-    ":h" -> do putStrLn "Type any formula to prove or find a counterexample."
-               putStrLn "Special commands:"
-               putStrLn "  :q -> quit"
-               putStrLn "  :h -> display this help message"
-               putStrLn "  :p -> toggle pretty printing (enabled by default)"
-               proveREPL pp
-    ":p" -> case pp of
-              True  -> do { putStrLn "Pretty printing disabled.";proveREPL False }
-              False -> do { putStrLn "Pretty printing enabled.";proveREPL True }
+  case words fStr of
+    (":q":[]) -> return ()
+    (":h":[]) -> do putStrLn "Type any formula to prove or find a counterexample."
+                    putStrLn "Special commands:"
+                    putStrLn "  :q                 -> quit"
+                    putStrLn "  :h                 -> display this help message"
+                    putStrLn "  :p                 -> toggle pretty printing (enabled by default)"
+                    putStrLn "  :m [sequent,truth] -> change between sequent and truth table modes"
+                    proveREPL pp seqMode
+    (":p":[]) -> case pp of
+                  True  -> do { putStrLn "Pretty printing disabled.";proveREPL False seqMode }
+                  False -> do { putStrLn "Pretty printing enabled.";proveREPL True seqMode }
+    (":m":"sequent":_)  -> do { putStrLn "Sequent proof mode."; proveREPL pp True }
+    (":m":"truth":_)    -> do { putStrLn "Truth table proof mode."; proveREPL pp False }
+    (":m":m:_)          -> do { putStrLn $ "Invalid proof mode " ++ m ++ ". [sequent, truth]";
+                                proveREPL pp seqMode }
+    ((':':c):_)         -> do { putStrLn $ "Invalid command :" ++ c ++ "."; proveREPL pp seqMode }
     _ -> case parseFormula fStr of
-      Left e -> do { print e; proveREPL pp }
+      Left e -> do { print e; proveREPL pp seqMode }
       Right f -> do
-        if pp then putStr (S.ppTheoremAndProof f) else putStrLn (S.printTheoremAndProof f)
-        proveREPL pp
+        if seqMode -- sequent proof mode
+          then if pp
+               then putStr (S.ppTheoremAndProof f)
+               else putStrLn (S.printTheoremAndProof f)
+          else putStr (truthTableAndMessage f)
+        proveREPL pp seqMode
     
 
 main :: IO ()
@@ -383,7 +394,7 @@ main = do
     PrintRule -> putStrLn (args ^. rule)
     Prove -> do
       putStrLn "Enter a formula. Type \":h\" for help.\n"
-      proveREPL True
+      proveREPL True True
       putStrLn "Bye!"
     ShowHelp ->
       print $ helpText [] HelpFormatDefault arguments
