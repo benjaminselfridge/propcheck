@@ -5,6 +5,7 @@ module Logic.Propositional.Sequent
   , printTheorem
   , printTheoremAndProof
   , ppTheoremAndProof
+  , ppTheoremAndProofReverse
   ) where
 
 import Logic.Propositional
@@ -195,9 +196,22 @@ ppProof (LImplies seq pf1 pf2) =
   ppProofStep (show seq) (spliceLines (ppProof pf1) (ppProof pf2))
 ppProof (LBottom seq pf) = ppProofStep (show seq) (ppProof pf)
 
+reverseLines :: String -> String
+reverseLines = unlines . reverse . lines
+
+ppProofReverse :: Proof -> String
+ppProofReverse = reverseLines . ppProof
+
 ppTheoremAndProof :: Formula -> String
 ppTheoremAndProof f = case prove (S.fromList [] :- S.fromList [f]) of
   Left a -> show f ++ " is not a theorem.\n" ++
             "Counterexample:\n" ++ pad 2 0 (showAssignment a)
   Right p -> "Theorem: " ++ show f ++ "\n" ++
              "Proof:\n" ++ ppProof p
+
+ppTheoremAndProofReverse :: Formula -> String
+ppTheoremAndProofReverse f = case prove (S.fromList [] :- S.fromList [f]) of
+  Left a -> show f ++ " is not a theorem.\n" ++
+            "Counterexample:\n" ++ pad 2 0 (showAssignment a)
+  Right p -> "Theorem: " ++ show f ++ "\n" ++
+             "Proof:\n" ++ ppProofReverse p

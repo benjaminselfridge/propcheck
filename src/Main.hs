@@ -349,8 +349,8 @@ ruleList =
   \(if you want to see more info on a particular rule, try -r=<rule>, where \n\
   \<rule> is one of the above)"
 
-proveREPL :: Bool -> Bool -> IO ()
-proveREPL pp seqMode = do
+proveREPL :: Bool -> Bool -> Bool -> IO ()
+proveREPL pp seqMode ud = do
   putStr "> "
   hFlush stdout
   fStr <- getLine
@@ -361,25 +361,30 @@ proveREPL pp seqMode = do
                     putStrLn "  :q                 -> quit"
                     putStrLn "  :h                 -> display this help message"
                     putStrLn "  :p                 -> toggle pretty printing (enabled by default)"
+                    putStrLn "  :u                 -> toggle upside-down printing (disabled by default"
                     putStrLn "  :m [sequent,truth] -> change between sequent and truth table modes"
-                    proveREPL pp seqMode
+                    proveREPL pp seqMode ud
     (":p":[]) -> case pp of
-                  True  -> do { putStrLn "Pretty printing disabled.";proveREPL False seqMode }
-                  False -> do { putStrLn "Pretty printing enabled.";proveREPL True seqMode }
-    (":m":"sequent":_)  -> do { putStrLn "Sequent proof mode."; proveREPL pp True }
-    (":m":"truth":_)    -> do { putStrLn "Truth table proof mode."; proveREPL pp False }
-    (":m":m:_)          -> do { putStrLn $ "Invalid proof mode " ++ m ++ ". [sequent, truth]";
-                                proveREPL pp seqMode }
-    ((':':c):_)         -> do { putStrLn $ "Invalid command :" ++ c ++ "."; proveREPL pp seqMode }
+                   True  -> do { putStrLn "Pretty printing disabled.";proveREPL False seqMode ud }
+                   False -> do { putStrLn "Pretty printing enabled.";proveREPL True seqMode ud }
+    (":u":[]) -> case ud of
+                   True  -> do { putStrLn "Upside-down printing disabled.";proveREPL pp seqMode False}
+                   False -> do { putStrLn "Upside-down printing enabled.";proveREPL pp seqMode True}
+    (":m":"sequent":_)   -> do { putStrLn "Sequent proof mode."; proveREPL pp True ud }
+    (":m":"truth":_)     -> do { putStrLn "Truth table proof mode."; proveREPL pp False ud }
+    (":m":m:_)           -> do { putStrLn $ "Invalid proof mode " ++ m ++ ". [sequent, truth]";
+                                 proveREPL pp seqMode ud }
+    ((':':c):_)          -> do { putStrLn $ "Invalid command :" ++ c ++ "."; proveREPL pp seqMode ud }
     _ -> case parseFormula fStr of
-      Left e -> do { print e; proveREPL pp seqMode }
+      Left e -> do { print e; proveREPL pp seqMode ud }
       Right f -> do
         if seqMode -- sequent proof mode
-          then if pp
-               then putStr (S.ppTheoremAndProof f)
-               else putStrLn (S.printTheoremAndProof f)
+          then case (pp, ud) of
+               (True, True)  -> putStr (S.ppTheoremAndProofReverse f)
+               (True, False) -> putStr (S.ppTheoremAndProof f)
+               (False, _)    -> putStrLn (S.printTheoremAndProof f)
           else putStr (truthTableAndMessage f)
-        proveREPL pp seqMode
+        proveREPL pp seqMode ud
     
 
 main :: IO ()
@@ -394,7 +399,7 @@ main = do
     PrintRule -> putStrLn (args ^. rule)
     Prove -> do
       putStrLn "Enter a formula. Type \":h\" for help.\n"
-      proveREPL True True
+      proveREPL True True False
       putStrLn "Bye!"
     ShowHelp ->
       print $ helpText [] HelpFormatDefault arguments
